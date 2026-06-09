@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Bell } from "lucide-react";
+import Link from "next/link";
+import { Plus, Bell, User } from "lucide-react";
 import { TripCard } from "./trip-card";
 import { cn } from "@/lib/utils";
 import type { Base, Trip } from "@/lib/types";
@@ -30,6 +31,23 @@ export function TripsScreen({
 
   return (
     <div className="page-enter mx-auto max-w-5xl px-4 py-6 md:px-8 md:py-8">
+      {/* Desktop top bar (replaces the side nav on this screen) */}
+      <div className="mb-6 hidden items-center justify-between md:flex">
+        <Link href="/trips" className="flex items-center gap-2.5">
+          <div className="flex size-8 items-center justify-center rounded-xl bg-primary text-base font-bold text-primary-foreground">
+            ט
+          </div>
+          <span className="font-display text-lg font-bold tracking-tight">Tal Travel</span>
+        </Link>
+        <Link
+          href="/profile"
+          aria-label="פרופיל"
+          className="flex size-9 items-center justify-center rounded-full bg-secondary text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+        >
+          <User className="size-5" />
+        </Link>
+      </div>
+
       <header className="mb-6 flex items-center justify-between">
         <h1 className="text-3xl font-bold">הטיולים שלי</h1>
         <div className="flex items-center gap-2">

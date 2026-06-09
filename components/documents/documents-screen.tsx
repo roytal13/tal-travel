@@ -1,13 +1,13 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Plus, Camera, Upload, Info, Loader2 } from "lucide-react";
+import { Plus, Camera, Upload, Info, Loader2, X, Download } from "lucide-react";
 import { DocumentCard } from "./document-card";
 import { Card } from "@/components/ui/card";
 import { documentCategoryIcon } from "@/lib/doc-icons";
 import { documentCategoryLabel } from "@/lib/labels";
 import { createClient } from "@/lib/supabase/client";
-import { addDocument } from "@/lib/actions";
+import { addDocument, updateDocument, deleteDocument } from "@/lib/actions";
 import { cn } from "@/lib/utils";
 import type { DocumentCategory, TripDocument } from "@/lib/types";
 
@@ -37,6 +37,42 @@ export function DocumentsScreen({
   const [showUpload, setShowUpload] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [lightbox, setLightbox] = useState<TripDocument | null>(null);
+
+  const openDoc = (doc: TripDocument) => {
+    if (!doc.fileUrl) return;
+    if (doc.mimeType?.startsWith("image/")) {
+      setLightbox(doc);
+    } else {
+      window.open(doc.fileUrl, "_blank", "noopener,noreferrer");
+    }
+  };
+
+  const removeDoc = (id: string) => {
+    setDocs((prev) => prev.filter((d) => d.id !== id));
+    if (editingId === id) setEditingId(null);
+    void deleteDocument(id);
+  };
+
+  const saveEdit = (
+    id: string,
+    values: { category: DocumentCategory; title: string; expiryDate?: string }
+  ) => {
+    setDocs((prev) =>
+      prev.map((d) =>
+        d.id === id
+          ? { ...d, category: values.category, title: values.title, expiryDate: values.expiryDate }
+          : d
+      )
+    );
+    setEditingId(null);
+    void updateDocument(id, {
+      category: values.category,
+      title: values.title,
+      expiryDate: values.expiryDate ?? null,
+    });
+  };
 
   const cameraInput = useRef<HTMLInputElement>(null);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -161,14 +197,64 @@ export function DocumentsScreen({
                 {documentCategoryLabel[category]} ({items.length})
               </h3>
               <div className="grid gap-3 sm:grid-cols-2">
-                {items.map((doc) => (
-                  <DocumentCard key={doc.id} doc={doc} tripEndDate={tripEndDate} />
-                ))}
+                {items.map((doc) =>
+                  editingId === doc.id ? (
+                    <DocumentEditForm
+                      key={doc.id}
+                      doc={doc}
+                      onSave={(v) => saveEdit(doc.id, v)}
+                      onCancel={() => setEditingId(null)}
+                    />
+                  ) : (
+                    <DocumentCard
+                      key={doc.id}
+                      doc={doc}
+                      tripEndDate={tripEndDate}
+                      onOpen={() => openDoc(doc)}
+                      onEdit={() => setEditingId(doc.id)}
+                      onDelete={() => removeDoc(doc.id)}
+                    />
+                  )
+                )}
               </div>
             </section>
           );
         })}
       </div>
+
+      {/* Image lightbox */}
+      {lightbox?.fileUrl && (
+        <div
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/85 p-4"
+          onClick={() => setLightbox(null)}
+        >
+          <div className="absolute inset-x-0 top-0 flex items-center justify-between p-4">
+            <a
+              href={lightbox.fileUrl}
+              download={lightbox.title}
+              onClick={(e) => e.stopPropagation()}
+              className="flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-sm text-white backdrop-blur transition-colors hover:bg-white/25"
+            >
+              <Download className="size-4" />
+              הורדה
+            </a>
+            <button
+              onClick={() => setLightbox(null)}
+              aria-label="סגור"
+              className="flex size-9 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur transition-colors hover:bg-white/25"
+            >
+              <X className="size-5" />
+            </button>
+          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={lightbox.fileUrl}
+            alt={lightbox.title}
+            onClick={(e) => e.stopPropagation()}
+            className="max-h-[85vh] max-w-full rounded-lg object-contain"
+          />
+        </div>
+      )}
     </div>
   );
 }
@@ -194,5 +280,77 @@ function Pill({
     >
       {children}
     </button>
+  );
+}
+
+function DocumentEditForm({
+  doc,
+  onSave,
+  onCancel,
+}: {
+  doc: TripDocument;
+  onSave: (v: { category: DocumentCategory; title: string; expiryDate?: string }) => void;
+  onCancel: () => void;
+}) {
+  const [title, setTitle] = useState(doc.title);
+  const [category, setCategory] = useState<DocumentCategory>(doc.category);
+  const [expiry, setExpiry] = useState(doc.expiryDate ?? "");
+
+  const save = () => {
+    const t = title.trim();
+    if (!t) return;
+    onSave({ category, title: t, expiryDate: expiry || undefined });
+  };
+
+  return (
+    <Card className="space-y-3 p-4">
+      <input
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        placeholder="שם המסמך"
+        className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      />
+      <div className="flex flex-wrap gap-1.5">
+        {CATEGORY_ORDER.map((c) => (
+          <button
+            key={c}
+            onClick={() => setCategory(c)}
+            className={cn(
+              "rounded-full px-2.5 py-1 text-xs font-medium transition-colors",
+              category === c
+                ? "bg-primary text-primary-foreground"
+                : "bg-secondary text-muted-foreground"
+            )}
+          >
+            {documentCategoryLabel[c]}
+          </button>
+        ))}
+      </div>
+      <div>
+        <label className="mb-1 block text-xs text-muted-foreground">
+          תוקף (אופציונלי)
+        </label>
+        <input
+          type="date"
+          value={expiry}
+          onChange={(e) => setExpiry(e.target.value)}
+          className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        />
+      </div>
+      <div className="flex gap-2">
+        <button
+          onClick={save}
+          className="flex-1 rounded-lg bg-primary py-2 text-sm font-medium text-primary-foreground hover:bg-lavender-600"
+        >
+          שמירה
+        </button>
+        <button
+          onClick={onCancel}
+          className="rounded-lg border border-border px-4 py-2 text-sm text-muted-foreground hover:bg-secondary"
+        >
+          ביטול
+        </button>
+      </div>
+    </Card>
   );
 }

@@ -264,4 +264,8 @@ export interface TripDocument {
   expiryDate?: string;
   notes?: string;
   createdAt?: string;
+  filePath?: string;
+  mimeType?: string;
+  /** Short-lived signed URL for viewing/downloading the file (private bucket). */
+  fileUrl?: string;
 }

@@ -172,6 +172,8 @@ function mapDocument(d: any): TripDocument {
     expiryDate: d.expiry_date ?? undefined,
     notes: d.notes ?? undefined,
     createdAt: d.created_at ?? undefined,
+    filePath: d.file_path ?? undefined,
+    mimeType: d.mime_type ?? undefined,
   };
 }
 
@@ -297,11 +299,23 @@ export const getAttractions = cache(async (tripId: string): Promise<Attraction[]
 
 export const getDocuments = cache(async (tripId: string): Promise<TripDocument[]> => {
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("documents")
-    .select("*")
-    .eq("trip_id", tripId);
-  return (data ?? []).map(mapDocument);
+  const { data } = await supabase.from("documents").select("*").eq("trip_id", tripId);
+  const docs = (data ?? []).map(mapDocument);
+
+  // Sign URLs (1h) so the private files can be previewed/downloaded.
+  const paths = docs.map((d) => d.filePath).filter((p): p is string => Boolean(p));
+  if (paths.length) {
+    const { data: signed } = await supabase.storage
+      .from("trip-documents")
+      .createSignedUrls(paths, 3600);
+    const urlByPath = new Map(
+      (signed ?? []).filter((s) => s.signedUrl).map((s) => [s.path, s.signedUrl])
+    );
+    for (const d of docs) {
+      if (d.filePath) d.fileUrl = urlByPath.get(d.filePath) ?? undefined;
+    }
+  }
+  return docs;
 });
 
 export const getDailyPlan = cache(async (tripId: string): Promise<DailyPlanEntry[]> => {

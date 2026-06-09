@@ -1,12 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { formatFullDate } from "@/lib/format";
 import { expenseCategoryLabel, expenseCategoryColor } from "@/lib/labels";
-import { addExpense } from "@/lib/actions";
+import { addExpense, updateExpense, deleteExpense } from "@/lib/actions";
 import type { CurrencyConfig } from "@/lib/destinations";
 import type { Expense, ExpenseCategory } from "@/lib/types";
 
@@ -21,6 +21,14 @@ const CATEGORIES: ExpenseCategory[] = [
 
 const ils = (n: number) => `₪${Math.round(n).toLocaleString("he-IL")}`;
 
+interface ExpenseValues {
+  category: ExpenseCategory;
+  amount: number;
+  currency: string;
+  amountIls: number;
+  description?: string;
+}
+
 export function ExpensesScreen({
   tripId,
   initial,
@@ -34,6 +42,7 @@ export function ExpensesScreen({
 }) {
   const [expenses, setExpenses] = useState<Expense[]>(initial);
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const total = useMemo(
     () => expenses.reduce((sum, e) => sum + e.amountIls, 0),
@@ -50,12 +59,33 @@ export function ExpensesScreen({
     );
   }, [expenses]);
 
+  const addNew = async (vals: ExpenseValues) => {
+    const created = await addExpense(tripId, { ...vals, expenseDate: "2026-07-23" });
+    if (created) setExpenses((prev) => [created, ...prev]);
+    setShowForm(false);
+  };
+
+  const saveEdit = async (id: string, vals: ExpenseValues) => {
+    setExpenses((prev) => prev.map((e) => (e.id === id ? { ...e, ...vals } : e)));
+    setEditingId(null);
+    await updateExpense(id, vals);
+  };
+
+  const remove = (id: string) => {
+    setExpenses((prev) => prev.filter((e) => e.id !== id));
+    if (editingId === id) setEditingId(null);
+    void deleteExpense(id);
+  };
+
   return (
     <div className="mx-auto max-w-2xl px-4 py-6 md:px-8">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-2xl font-bold">הוצאות</h2>
         <button
-          onClick={() => setShowForm((v) => !v)}
+          onClick={() => {
+            setShowForm((v) => !v);
+            setEditingId(null);
+          }}
           className="flex h-9 items-center gap-1.5 rounded-full bg-primary px-3.5 text-sm font-medium text-primary-foreground shadow-[var(--shadow-lavender)] transition-colors hover:bg-lavender-600"
         >
           <Plus className="size-4" />
@@ -64,13 +94,11 @@ export function ExpensesScreen({
       </div>
 
       {showForm && (
-        <AddExpenseForm
-          tripId={tripId}
+        <ExpenseForm
           currency={currency}
-          onAdd={(e) => {
-            setExpenses((prev) => [e, ...prev]);
-            setShowForm(false);
-          }}
+          submitLabel="הוסף"
+          onSubmit={addNew}
+          onCancel={() => setShowForm(false)}
         />
       )}
 
@@ -127,49 +155,83 @@ export function ExpensesScreen({
         כל ההוצאות ({expenses.length})
       </h3>
       <Card className="divide-y divide-border">
-        {expenses.map((e) => (
-          <div key={e.id} className="flex items-center gap-3 p-3.5">
-            <span
-              className="size-2.5 shrink-0 rounded-full"
-              style={{ background: expenseCategoryColor[e.category] }}
-            />
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium">
-                {e.description ?? expenseCategoryLabel[e.category]}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {expenseCategoryLabel[e.category]} · {formatFullDate(e.expenseDate)}
-              </p>
+        {expenses.map((e) =>
+          editingId === e.id ? (
+            <div key={e.id} className="p-3">
+              <ExpenseForm
+                currency={currency}
+                initial={e}
+                submitLabel="שמירה"
+                onSubmit={(vals) => saveEdit(e.id, vals)}
+                onCancel={() => setEditingId(null)}
+              />
             </div>
-            <div className="text-end">
-              <p className="font-mono text-sm font-medium">{ils(e.amountIls)}</p>
-              {e.currency !== "ILS" && (
-                <p className="font-mono text-xs text-muted-foreground">
-                  {currency.symbol}
-                  {e.amount.toLocaleString("en-US")}
+          ) : (
+            <div key={e.id} className="flex items-center gap-3 p-3.5">
+              <span
+                className="size-2.5 shrink-0 rounded-full"
+                style={{ background: expenseCategoryColor[e.category] }}
+              />
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium">
+                  {e.description ?? expenseCategoryLabel[e.category]}
                 </p>
-              )}
+                <p className="text-xs text-muted-foreground">
+                  {expenseCategoryLabel[e.category]} · {formatFullDate(e.expenseDate)}
+                </p>
+              </div>
+              <div className="text-end">
+                <p className="font-mono text-sm font-medium">{ils(e.amountIls)}</p>
+                {e.currency !== "ILS" && (
+                  <p className="font-mono text-xs text-muted-foreground">
+                    {currency.symbol}
+                    {e.amount.toLocaleString("en-US")}
+                  </p>
+                )}
+              </div>
+              <button
+                onClick={() => {
+                  setEditingId(e.id);
+                  setShowForm(false);
+                }}
+                aria-label="עריכה"
+                className="flex size-8 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              >
+                <Pencil className="size-4" />
+              </button>
+              <button
+                onClick={() => remove(e.id)}
+                aria-label="מחיקה"
+                className="flex size-8 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+              >
+                <Trash2 className="size-4" />
+              </button>
             </div>
-          </div>
-        ))}
+          )
+        )}
       </Card>
     </div>
   );
 }
 
-function AddExpenseForm({
-  tripId,
+function ExpenseForm({
   currency,
-  onAdd,
+  initial,
+  submitLabel,
+  onSubmit,
+  onCancel,
 }: {
-  tripId: string;
   currency: CurrencyConfig;
-  onAdd: (e: Expense) => void;
+  initial?: Expense;
+  submitLabel: string;
+  onSubmit: (vals: ExpenseValues) => void | Promise<void>;
+  onCancel: () => void;
 }) {
-  const [amount, setAmount] = useState("");
-  const [cur, setCur] = useState<"local" | "ILS">("local");
-  const [category, setCategory] = useState<ExpenseCategory>("food");
-  const [description, setDescription] = useState("");
+  const initLocal = !initial || initial.currency === currency.code;
+  const [amount, setAmount] = useState(initial ? String(initial.amount) : "");
+  const [cur, setCur] = useState<"local" | "ILS">(initLocal ? "local" : "ILS");
+  const [category, setCategory] = useState<ExpenseCategory>(initial?.category ?? "food");
+  const [description, setDescription] = useState(initial?.description ?? "");
   const [saving, setSaving] = useState(false);
 
   const submit = async () => {
@@ -178,16 +240,14 @@ function AddExpenseForm({
     const isLocal = cur === "local";
     const amountIls = Math.round((isLocal ? n * currency.ilsPerUnit : n) * 100) / 100;
     setSaving(true);
-    const created = await addExpense(tripId, {
+    await onSubmit({
       category,
       amount: n,
       currency: isLocal ? currency.code : "ILS",
       amountIls,
       description: description.trim() || undefined,
-      expenseDate: "2026-07-23",
     });
     setSaving(false);
-    if (created) onAdd(created);
   };
 
   return (
@@ -241,15 +301,21 @@ function AddExpenseForm({
         ))}
       </div>
 
-      <button
-        onClick={submit}
-        className="w-full rounded-lg bg-primary py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-lavender-600"
-      >
-        הוסף
-      </button>
-      <p className="text-xs text-muted-foreground">
-        הוספה מקומית לתצוגה. תישמר לצמיתות כשבסיס הנתונים יחובר.
-      </p>
+      <div className="flex gap-2">
+        <button
+          onClick={submit}
+          disabled={saving}
+          className="flex-1 rounded-lg bg-primary py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-lavender-600 disabled:opacity-60"
+        >
+          {submitLabel}
+        </button>
+        <button
+          onClick={onCancel}
+          className="rounded-lg border border-border px-4 py-2.5 text-sm text-muted-foreground hover:bg-secondary"
+        >
+          ביטול
+        </button>
+      </div>
     </Card>
   );
 }

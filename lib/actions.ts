@@ -23,6 +23,85 @@ export async function setTaskDone(taskId: string, done: boolean) {
     .eq("id", taskId);
 }
 
+/** Edit a task's title and category. */
+export async function updateTask(
+  taskId: string,
+  input: { title: string; category: string | null }
+) {
+  const supabase = await createClient();
+  await supabase
+    .from("tasks")
+    .update({ title: input.title, category: input.category })
+    .eq("id", taskId);
+}
+
+/** Delete a task. */
+export async function deleteTask(taskId: string) {
+  const supabase = await createClient();
+  await supabase.from("tasks").delete().eq("id", taskId);
+}
+
+/** Edit an expense. */
+export async function updateExpense(
+  expenseId: string,
+  input: {
+    category: ExpenseCategory;
+    amount: number;
+    currency: string;
+    amountIls: number;
+    description?: string;
+  }
+) {
+  const supabase = await createClient();
+  await supabase
+    .from("expenses")
+    .update({
+      category: input.category,
+      amount: input.amount,
+      currency: input.currency,
+      amount_ils: input.amountIls,
+      description: input.description ?? null,
+    })
+    .eq("id", expenseId);
+}
+
+/** Delete an expense. */
+export async function deleteExpense(expenseId: string) {
+  const supabase = await createClient();
+  await supabase.from("expenses").delete().eq("id", expenseId);
+}
+
+/** Edit a document's category, title, and expiry. */
+export async function updateDocument(
+  documentId: string,
+  input: { category: DocumentCategory; title: string; expiryDate?: string | null }
+) {
+  const supabase = await createClient();
+  await supabase
+    .from("documents")
+    .update({
+      category: input.category,
+      title: input.title,
+      expiry_date: input.expiryDate ?? null,
+    })
+    .eq("id", documentId);
+}
+
+/** Delete a document (and its Storage file). */
+export async function deleteDocument(documentId: string) {
+  const supabase = await createClient();
+  const { data: row } = await supabase
+    .from("documents")
+    .select("trip_id, file_path")
+    .eq("id", documentId)
+    .maybeSingle();
+  if (row?.file_path) {
+    await supabase.storage.from("trip-documents").remove([row.file_path]);
+  }
+  await supabase.from("documents").delete().eq("id", documentId);
+  if (row?.trip_id) revalidatePath(`/trips/${row.trip_id}/documents`);
+}
+
 /** Toggle a packing item packed/unpacked. */
 export async function setPacked(itemId: string, packed: boolean) {
   const supabase = await createClient();
@@ -122,6 +201,9 @@ export async function addDocument(
     .select()
     .single();
   if (!data) return null;
+  const { data: signed } = await supabase.storage
+    .from("trip-documents")
+    .createSignedUrl(input.filePath, 3600);
   revalidatePath(`/trips/${tripId}/documents`);
   return {
     id: data.id,
@@ -129,5 +211,8 @@ export async function addDocument(
     category: data.category,
     title: data.title,
     createdAt: data.created_at ?? undefined,
+    filePath: input.filePath,
+    mimeType: input.mimeType,
+    fileUrl: signed?.signedUrl,
   };
 }
