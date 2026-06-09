@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import { TripModuleHeader } from "@/components/trips/trip-module-header";
 import { PhrasebookScreen } from "@/components/phrasebook/phrasebook-screen";
 import { Card } from "@/components/ui/card";
 import { getTrip } from "@/lib/db";
@@ -18,7 +17,6 @@ export default async function PhrasebookPage({
 
   return (
     <div className="page-enter">
-      <TripModuleHeader trip={trip} />
       {phrasebook ? (
         <PhrasebookScreen
           localeName={phrasebook.localeName}

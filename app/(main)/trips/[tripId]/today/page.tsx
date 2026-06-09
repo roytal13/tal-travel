@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import { TripModuleHeader } from "@/components/trips/trip-module-header";
 import { TodayScreen } from "@/components/today/today-screen";
 import { Card } from "@/components/ui/card";
 import {
@@ -34,7 +33,6 @@ export default async function TripTodayPage({
 
   return (
     <div className="page-enter">
-      <TripModuleHeader trip={trip} />
       {today ? (
         <TodayScreen
           trip={trip}

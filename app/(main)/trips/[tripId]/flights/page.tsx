@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import { TripModuleHeader } from "@/components/trips/trip-module-header";
 import { FlightCard } from "@/components/flights/flight-card";
 import { getTrip, getFlights } from "@/lib/db";
 import type { Flight } from "@/lib/types";
@@ -28,7 +27,6 @@ export default async function FlightsPage({
 
   return (
     <div className="page-enter">
-      <TripModuleHeader trip={trip} />
       <div className="mx-auto max-w-3xl space-y-6 px-4 py-6 md:px-8">
         <div className="flex items-baseline justify-between">
           <h2 className="text-2xl font-bold">טיסות</h2>

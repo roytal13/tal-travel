@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { Info } from "lucide-react";
-import { TripModuleHeader } from "@/components/trips/trip-module-header";
 import { WeatherCard } from "@/components/weather/weather-card";
 import { getTrip, getBases } from "@/lib/db";
 import { fetchForecast } from "@/lib/weather";
@@ -31,7 +30,6 @@ export default async function WeatherPage({
 
   return (
     <div className="page-enter">
-      <TripModuleHeader trip={trip} />
       <div className="mx-auto max-w-3xl px-4 py-6 md:px-8">
         <h2 className="mb-1 text-2xl font-bold">מזג אוויר</h2>
         <p className="mb-5 flex items-start gap-1.5 text-xs text-muted-foreground">

@@ -71,7 +71,7 @@ export function TripCard({ trip, bases, today }: TripCardProps) {
 
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Users className="size-4" />
-            {trip.members.length} משתתפים
+            {trip.travelers ?? trip.members.length} משתתפים
           </div>
 
           {destinations.length > 0 && (

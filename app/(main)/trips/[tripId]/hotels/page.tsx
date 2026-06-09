@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import { TripModuleHeader } from "@/components/trips/trip-module-header";
 import { HotelCard } from "@/components/hotels/hotel-card";
 import { getTrip, getHotels } from "@/lib/db";
 import { getDestination } from "@/lib/destinations";
@@ -20,7 +19,6 @@ export default async function HotelsPage({
 
   return (
     <div className="page-enter">
-      <TripModuleHeader trip={trip} />
       <div className="mx-auto max-w-3xl px-4 py-6 md:px-8">
         <div className="mb-4 flex items-baseline justify-between">
           <h2 className="text-2xl font-bold">מלונות</h2>

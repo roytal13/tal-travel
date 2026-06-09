@@ -1,4 +1,5 @@
 import { TripModuleSidebar } from "@/components/trips/trip-module-sidebar";
+import { TripModuleHeader } from "@/components/trips/trip-module-header";
 import { getTrip } from "@/lib/db";
 
 export default async function TripLayout({
@@ -13,6 +14,7 @@ export default async function TripLayout({
 
   return (
     <div className="md:flex">
+      {/* Desktop: vertical module sidebar on the right (RTL start) */}
       {trip && (
         <TripModuleSidebar
           tripId={trip.id}
@@ -20,7 +22,11 @@ export default async function TripLayout({
           enabledModules={trip.enabledModules}
         />
       )}
-      <div className="min-w-0 flex-1">{children}</div>
+      <div className="min-w-0 flex-1">
+        {/* Mobile: sticky module nav, stays on screen while pages load */}
+        {trip && <TripModuleHeader trip={trip} />}
+        {children}
+      </div>
     </div>
   );
 }

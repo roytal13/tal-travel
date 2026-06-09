@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import { TripModuleHeader } from "@/components/trips/trip-module-header";
 import { ExpensesScreen } from "@/components/expenses/expenses-screen";
 import { getTrip, getExpenses } from "@/lib/db";
 import { getDestination } from "@/lib/destinations";
@@ -26,7 +25,6 @@ export default async function ExpensesPage({
 
   return (
     <div className="page-enter">
-      <TripModuleHeader trip={trip} />
       <ExpensesScreen
         tripId={tripId}
         initial={expenses}

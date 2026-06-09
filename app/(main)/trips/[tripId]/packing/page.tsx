@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import { TripModuleHeader } from "@/components/trips/trip-module-header";
 import { PackingScreen } from "@/components/packing/packing-screen";
 import { getTrip, getPackingItems } from "@/lib/db";
 
@@ -16,7 +15,6 @@ export default async function PackingPage({
 
   return (
     <div className="page-enter">
-      <TripModuleHeader trip={trip} />
       <PackingScreen tripId={tripId} initial={items} />
     </div>
   );

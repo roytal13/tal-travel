@@ -1,6 +1,5 @@
 import Link from "next/link";
 import {
-  ArrowRight,
   Users,
   Clock,
   FileText,
@@ -12,7 +11,6 @@ import {
   MapPin,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { TripTabs } from "./trip-tabs";
 import { CoverImage } from "./cover-image";
 import {
   formatHebrewRange,
@@ -88,13 +86,6 @@ export function TripOverview({
           className="absolute inset-0 size-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/20 to-black/10" />
-        <Link
-          href="/trips"
-          className="absolute end-4 top-4 flex items-center gap-1 rounded-full bg-white/15 px-3 py-1.5 text-sm text-white backdrop-blur transition-colors hover:bg-white/25"
-        >
-          חזרה
-          <ArrowRight className="size-4" />
-        </Link>
         <div className="relative mx-auto w-full max-w-3xl text-white">
           <h1 className="text-3xl font-bold drop-shadow-sm">{trip.name}</h1>
           <p className="mt-1 text-white/90">
@@ -103,7 +94,7 @@ export function TripOverview({
           <div className="mt-3 flex flex-wrap items-center gap-4 text-sm text-white/90">
             <span className="flex items-center gap-1.5">
               <Users className="size-4" />
-              {trip.members.length} משתתפים
+              {trip.travelers ?? trip.members.length} משתתפים
             </span>
             {trip.status === "upcoming" && (
               <span className="flex items-center gap-1.5">
@@ -116,11 +107,6 @@ export function TripOverview({
       </header>
 
       <div className="mx-auto max-w-3xl space-y-6 px-4 py-6 md:px-8">
-        {/* Module tabs (mobile only; desktop uses the right sidebar) */}
-        <div className="md:hidden">
-          <TripTabs tripId={trip.id} enabledModules={trip.enabledModules} />
-        </div>
-
         {/* KPI grid */}
         <div className="grid grid-cols-5 gap-2">
           {kpis.map((kpi) => {

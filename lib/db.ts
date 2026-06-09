@@ -5,6 +5,7 @@
  * domain types in lib/types.ts.
  */
 
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import type {
   Attraction,
@@ -202,7 +203,7 @@ function mapPacking(p: any): PackingItem {
 
 // ---- queries -------------------------------------------------------------
 
-export async function getTrips(): Promise<Trip[]> {
+export const getTrips = cache(async (): Promise<Trip[]> => {
   const supabase = await createClient();
   const { data: trips } = await supabase
     .from("trips")
@@ -227,9 +228,9 @@ export async function getTrips(): Promise<Trip[]> {
       (mems ?? []).filter((m) => m.trip_id === t.id)
     )
   );
-}
+});
 
-export async function getTrip(id: string): Promise<Trip | undefined> {
+export const getTrip = cache(async (id: string): Promise<Trip | undefined> => {
   const supabase = await createClient();
   const { data: t } = await supabase.from("trips").select("*").eq("id", id).maybeSingle();
   if (!t) return undefined;
@@ -243,9 +244,9 @@ export async function getTrip(id: string): Promise<Trip | undefined> {
   ]);
 
   return mapTrip(t, mods ?? [], mems ?? []);
-}
+});
 
-export async function getBases(tripId: string): Promise<Base[]> {
+export const getBases = cache(async (tripId: string): Promise<Base[]> => {
   const supabase = await createClient();
   const { data } = await supabase
     .from("bases")
@@ -253,9 +254,9 @@ export async function getBases(tripId: string): Promise<Base[]> {
     .eq("trip_id", tripId)
     .order("display_order");
   return (data ?? []).map(mapBase);
-}
+});
 
-export async function getHotels(tripId: string): Promise<Hotel[]> {
+export const getHotels = cache(async (tripId: string): Promise<Hotel[]> => {
   const supabase = await createClient();
   const { data } = await supabase
     .from("hotels")
@@ -263,9 +264,9 @@ export async function getHotels(tripId: string): Promise<Hotel[]> {
     .eq("trip_id", tripId)
     .order("check_in_date");
   return (data ?? []).map(mapHotel);
-}
+});
 
-export async function getFlights(tripId: string): Promise<Flight[]> {
+export const getFlights = cache(async (tripId: string): Promise<Flight[]> => {
   const supabase = await createClient();
   const { data } = await supabase
     .from("flights")
@@ -273,9 +274,9 @@ export async function getFlights(tripId: string): Promise<Flight[]> {
     .eq("trip_id", tripId)
     .order("departure_time");
   return (data ?? []).map(mapFlight);
-}
+});
 
-export async function getTasks(tripId: string): Promise<Task[]> {
+export const getTasks = cache(async (tripId: string): Promise<Task[]> => {
   const supabase = await createClient();
   const { data } = await supabase
     .from("tasks")
@@ -283,27 +284,27 @@ export async function getTasks(tripId: string): Promise<Task[]> {
     .eq("trip_id", tripId)
     .order("display_order");
   return (data ?? []).map(mapTask);
-}
+});
 
-export async function getAttractions(tripId: string): Promise<Attraction[]> {
+export const getAttractions = cache(async (tripId: string): Promise<Attraction[]> => {
   const supabase = await createClient();
   const { data } = await supabase
     .from("attractions")
     .select("*")
     .eq("trip_id", tripId);
   return (data ?? []).map(mapAttraction);
-}
+});
 
-export async function getDocuments(tripId: string): Promise<TripDocument[]> {
+export const getDocuments = cache(async (tripId: string): Promise<TripDocument[]> => {
   const supabase = await createClient();
   const { data } = await supabase
     .from("documents")
     .select("*")
     .eq("trip_id", tripId);
   return (data ?? []).map(mapDocument);
-}
+});
 
-export async function getDailyPlan(tripId: string): Promise<DailyPlanEntry[]> {
+export const getDailyPlan = cache(async (tripId: string): Promise<DailyPlanEntry[]> => {
   const supabase = await createClient();
   const { data } = await supabase
     .from("daily_plan")
@@ -311,23 +312,22 @@ export async function getDailyPlan(tripId: string): Promise<DailyPlanEntry[]> {
     .eq("trip_id", tripId)
     .order("date");
   return (data ?? []).map(mapDay);
-}
+});
 
-export async function getDay(
-  tripId: string,
-  date: string
-): Promise<DailyPlanEntry | undefined> {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("daily_plan")
-    .select("*")
-    .eq("trip_id", tripId)
-    .eq("date", date)
-    .maybeSingle();
-  return data ? mapDay(data) : undefined;
-}
+export const getDay = cache(
+  async (tripId: string, date: string): Promise<DailyPlanEntry | undefined> => {
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from("daily_plan")
+      .select("*")
+      .eq("trip_id", tripId)
+      .eq("date", date)
+      .maybeSingle();
+    return data ? mapDay(data) : undefined;
+  }
+);
 
-export async function getExpenses(tripId: string): Promise<Expense[]> {
+export const getExpenses = cache(async (tripId: string): Promise<Expense[]> => {
   const supabase = await createClient();
   const { data } = await supabase
     .from("expenses")
@@ -335,9 +335,9 @@ export async function getExpenses(tripId: string): Promise<Expense[]> {
     .eq("trip_id", tripId)
     .order("expense_date", { ascending: false });
   return (data ?? []).map(mapExpense);
-}
+});
 
-export async function getPackingItems(tripId: string): Promise<PackingItem[]> {
+export const getPackingItems = cache(async (tripId: string): Promise<PackingItem[]> => {
   const supabase = await createClient();
   const { data } = await supabase
     .from("packing_items")
@@ -345,4 +345,4 @@ export async function getPackingItems(tripId: string): Promise<PackingItem[]> {
     .eq("trip_id", tripId)
     .order("display_order");
   return (data ?? []).map(mapPacking);
-}
+});

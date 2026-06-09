@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import { TripModuleHeader } from "@/components/trips/trip-module-header";
 import { AttractionsScreen } from "@/components/attractions/attractions-screen";
 import { getTrip, getAttractions, getBases } from "@/lib/db";
 import { getDestination } from "@/lib/destinations";
@@ -23,7 +22,6 @@ export default async function TripAttractionsPage({
 
   return (
     <div className="page-enter">
-      <TripModuleHeader trip={trip} />
       <AttractionsScreen
         attractions={attractions}
         bases={bases}
