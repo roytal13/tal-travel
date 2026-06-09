@@ -24,7 +24,7 @@ export default async function HotelsPage({
           <h2 className="text-2xl font-bold">מלונות</h2>
           <span className="text-sm text-muted-foreground">{hotels.length} מלונות</span>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {hotels.map((hotel) => (
             <HotelCard key={hotel.id} hotel={hotel} countryName={countryName} />
           ))}

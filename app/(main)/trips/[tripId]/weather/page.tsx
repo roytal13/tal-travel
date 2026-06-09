@@ -36,7 +36,7 @@ export default async function WeatherPage({
           <Info className="mt-0.5 size-3.5 shrink-0" />
           תחזית חיה ל-7 הימים הקרובים לכל יעד (Open-Meteo). בזמן הטיול תוצג התחזית בפועל לתאריכים.
         </p>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {locations.map((base, i) => (
             <WeatherCard
               key={base.id}

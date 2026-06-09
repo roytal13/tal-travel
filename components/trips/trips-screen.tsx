@@ -50,8 +50,8 @@ export function TripsScreen({
         </Link>
       </div>
 
-      <header className="mb-6 flex items-center justify-between">
-        <h1 className="text-3xl font-bold">הטיולים שלי</h1>
+      <header className="mb-6 flex items-center justify-between gap-3">
+        <h1 className="truncate text-2xl font-bold sm:text-3xl">הטיולים שלי</h1>
         <div className="flex items-center gap-2">
           <button
             className="flex size-10 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
@@ -80,7 +80,7 @@ export function TripsScreen({
       {visible.length === 0 ? (
         <EmptyState tab={tab} />
       ) : (
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {visible.map(({ trip, bases }) => (
             <TripCard key={trip.id} trip={trip} bases={bases} today={today} />
           ))}

@@ -196,7 +196,7 @@ export function DocumentsScreen({
                 <Icon className="size-4" />
                 {documentCategoryLabel[category]} ({items.length})
               </h3>
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {items.map((doc) =>
                   editingId === doc.id ? (
                     <DocumentEditForm
