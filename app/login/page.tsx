@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Plane, Mail, Check } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { VERSION_LABEL } from "@/lib/version";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -76,6 +77,10 @@ export default function LoginPage() {
             </p>
           </form>
         )}
+
+        <p className="mt-6 text-center font-mono text-[11px] text-muted-foreground">
+          {VERSION_LABEL}
+        </p>
       </div>
     </div>
   );
