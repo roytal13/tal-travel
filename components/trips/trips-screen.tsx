@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Plus, Bell, User } from "lucide-react";
 import { TripCard } from "./trip-card";
 import { cn } from "@/lib/utils";
+import { VERSION_LABEL } from "@/lib/version";
 import type { Base, Trip } from "@/lib/types";
 
 export interface TripWithBases {
@@ -38,6 +39,7 @@ export function TripsScreen({
             ט
           </div>
           <span className="font-display text-lg font-bold tracking-tight">Tal Travel</span>
+          <span className="font-mono text-[11px] text-muted-foreground">{VERSION_LABEL}</span>
         </Link>
         <Link
           href="/profile"

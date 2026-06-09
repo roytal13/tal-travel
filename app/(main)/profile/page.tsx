@@ -1,6 +1,7 @@
 import { User, LogOut, Mail } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/server";
+import { VERSION_LABEL } from "@/lib/version";
 
 export default async function ProfilePage() {
   const supabase = await createClient();
@@ -34,6 +35,10 @@ export default async function ProfilePage() {
           התנתקות
         </button>
       </form>
+
+      <p className="mt-8 text-center font-mono text-xs text-muted-foreground">
+        Tal Travel {VERSION_LABEL}
+      </p>
     </div>
   );
 }
