@@ -31,6 +31,7 @@ export default async function PlanPage({
               day={day}
               base={bases.find((b) => b.id === day.baseId)}
               hotel={hotels.find((h) => h.id === day.hotelId)}
+              href={`/trips/${tripId}/plan/${day.date}`}
             />
           ))}
         </div>

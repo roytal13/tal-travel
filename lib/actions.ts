@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import type {
+  DailyPlanTag,
   DocumentCategory,
   Expense,
   ExpenseCategory,
@@ -10,6 +11,25 @@ import type {
   PackingItem,
   TripDocument,
 } from "@/lib/types";
+
+/** Update a daily plan entry's editable fields. */
+export async function updateDay(
+  dayId: string,
+  tripId: string,
+  input: { title: string; activities: string; notes: string; tag: DailyPlanTag | "" }
+) {
+  const supabase = await createClient();
+  await supabase
+    .from("daily_plan")
+    .update({
+      title: input.title || null,
+      activities: input.activities || null,
+      notes: input.notes || null,
+      tag: input.tag || null,
+    })
+    .eq("id", dayId);
+  revalidatePath(`/trips/${tripId}/plan`);
+}
 
 /** Toggle a task done/open (persisted; RLS scopes to trip members). */
 export async function setTaskDone(taskId: string, done: boolean) {
