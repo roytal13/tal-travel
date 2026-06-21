@@ -1,50 +1,18 @@
-import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-/**
- * Refreshes the auth session on every request and gates protected routes.
- * Unauthenticated users are redirected to /login (except auth + public paths).
- */
-export async function updateSession(request: NextRequest) {
-  let response = NextResponse.next({ request });
+const AUTH_COOKIE = "tal-auth";
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value)
-          );
-          response = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options)
-          );
-        },
-      },
-    }
-  );
+const PUBLIC_PREFIXES = ["/login", "/auth", "/manifest.webmanifest", "/sw.js"];
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+export function updateSession(request: NextRequest) {
   const path = request.nextUrl.pathname;
-  const isPublic =
-    path.startsWith("/login") ||
-    path.startsWith("/auth") ||
-    path === "/manifest.webmanifest" ||
-    path === "/sw.js";
+  const isPublic = PUBLIC_PREFIXES.some((p) => path.startsWith(p));
 
-  if (!user && !isPublic) {
+  if (!isPublic && !request.cookies.get(AUTH_COOKIE)?.value) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
   }
 
-  return response;
+  return NextResponse.next({ request });
 }

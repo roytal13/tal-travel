@@ -1,30 +1,32 @@
 "use client";
 
 import { useState } from "react";
-import { Plane, Mail, Check } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
+import { Plane, Lock } from "lucide-react";
 import { VERSION_LABEL } from "@/lib/version";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim()) return;
-    setStatus("sending");
+    setLoading(true);
     setError("");
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithOtp({
-      email: email.trim(),
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+
+    const res = await fetch("/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password }),
     });
-    if (error) {
-      setError(error.message);
-      setStatus("error");
+
+    if (res.ok) {
+      router.replace("/trips");
     } else {
-      setStatus("sent");
+      setError("סיסמה שגויה");
+      setLoading(false);
     }
   };
 
@@ -41,42 +43,32 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {status === "sent" ? (
-          <div className="rounded-xl bg-[#d1fae5] p-4 text-center text-sm text-[#065f46]">
-            <Check className="mx-auto mb-2 size-6" />
-            שלחנו קישור התחברות ל-{email}. בדוק את תיבת המייל ולחץ על הקישור.
+        <form onSubmit={submit} className="space-y-3">
+          <label className="block text-sm font-medium" htmlFor="password">
+            סיסמה
+          </label>
+          <div className="flex items-center gap-2 rounded-lg border border-input bg-background px-3 focus-within:ring-2 focus-within:ring-ring">
+            <Lock className="size-4 shrink-0 text-muted-foreground" />
+            <input
+              id="password"
+              type="password"
+              required
+              autoFocus
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="הכנס סיסמה"
+              className="w-full bg-transparent py-2.5 text-sm outline-none"
+            />
           </div>
-        ) : (
-          <form onSubmit={submit} className="space-y-3">
-            <label className="block text-sm font-medium" htmlFor="email">
-              כתובת מייל
-            </label>
-            <div className="flex items-center gap-2 rounded-lg border border-input bg-background px-3 focus-within:ring-2 focus-within:ring-ring">
-              <Mail className="size-4 text-muted-foreground" />
-              <input
-                id="email"
-                type="email"
-                dir="ltr"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                className="w-full bg-transparent py-2.5 text-sm outline-none"
-              />
-            </div>
-            {error && <p className="text-sm text-destructive">{error}</p>}
-            <button
-              type="submit"
-              disabled={status === "sending"}
-              className="w-full rounded-lg bg-primary py-2.5 text-sm font-medium text-primary-foreground shadow-[var(--shadow-lavender)] transition-colors hover:bg-lavender-600 disabled:opacity-60"
-            >
-              {status === "sending" ? "שולח..." : "שלח קישור התחברות"}
-            </button>
-            <p className="text-center text-xs text-muted-foreground">
-              נשלח אליך קישור חד-פעמי להתחברות, בלי סיסמה.
-            </p>
-          </form>
-        )}
+          {error && <p className="text-sm text-destructive">{error}</p>}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-lg bg-primary py-2.5 text-sm font-medium text-primary-foreground shadow-[var(--shadow-lavender)] transition-colors hover:bg-lavender-600 disabled:opacity-60"
+          >
+            {loading ? "מתחבר..." : "כניסה"}
+          </button>
+        </form>
 
         <p className="mt-6 text-center font-mono text-[11px] text-muted-foreground">
           {VERSION_LABEL}
