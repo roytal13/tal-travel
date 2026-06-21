@@ -32,7 +32,8 @@ import { dayTagLabel, dayTagVariant } from "@/lib/labels";
 import { mapsDirectionsUrl } from "@/lib/maps";
 import { updateDay } from "@/lib/actions";
 import { cn } from "@/lib/utils";
-import type { Base, DailyPlanEntry, DailyPlanTag, Hotel, TimelineItem } from "@/lib/types";
+import { AttractionCard } from "@/components/attractions/attraction-card";
+import type { Attraction, Base, DailyPlanEntry, DailyPlanTag, Hotel, TimelineItem } from "@/lib/types";
 
 type ItemKind = TimelineItem["kind"];
 
@@ -67,6 +68,7 @@ export function DayDetailScreen({
   day,
   base,
   hotel,
+  attractions = [],
   totalDays,
   prevDate,
   nextDate,
@@ -75,6 +77,7 @@ export function DayDetailScreen({
   day: DailyPlanEntry;
   base?: Base;
   hotel?: Hotel;
+  attractions?: Attraction[];
   totalDays: number;
   prevDate?: string;
   nextDate?: string;
@@ -400,6 +403,20 @@ export function DayDetailScreen({
             <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">הערות</h3>
             <p className="whitespace-pre-line text-sm leading-relaxed text-muted-foreground">{day.notes}</p>
           </Card>
+        )}
+
+        {/* Attractions for this base */}
+        {attractions.length > 0 && (
+          <section>
+            <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              אטרקציות באזור
+            </h3>
+            <div className="space-y-3">
+              {attractions.map((a) => (
+                <AttractionCard key={a.id} attraction={a} base={base} />
+              ))}
+            </div>
+          </section>
         )}
       </div>
     </div>

@@ -39,6 +39,20 @@ export async function updateDay(
   revalidatePath(`/trips/${tripId}/plan/${dayId}`);
 }
 
+/** Update an attraction's description (and optional notes). */
+export async function updateAttractionDescription(
+  attractionId: string,
+  tripId: string,
+  description: string
+) {
+  const supabase = await createClient();
+  await supabase
+    .from("attractions")
+    .update({ description: description || null })
+    .eq("id", attractionId);
+  revalidatePath(`/trips/${tripId}/attractions`);
+}
+
 /** Toggle a task done/open (persisted; RLS scopes to trip members). */
 export async function setTaskDone(taskId: string, done: boolean) {
   const supabase = await createClient();
