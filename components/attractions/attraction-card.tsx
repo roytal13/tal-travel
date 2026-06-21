@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import Image from "next/image";
 import { MapPin, Navigation, Pencil, Check, X } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -46,13 +45,13 @@ export function AttractionCard({
     <Card className="overflow-hidden">
       {/* Cover image */}
       {attraction.coverImageUrl && (
-        <div className="relative h-40 w-full">
-          <Image
+        <div className="relative h-40 w-full overflow-hidden">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
             src={attraction.coverImageUrl}
             alt={attraction.name}
-            fill
-            className="object-cover"
-            sizes="(max-width: 640px) 100vw, 50vw"
+            loading="lazy"
+            className="h-full w-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
           {attraction.priority && (
