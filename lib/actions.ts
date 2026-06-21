@@ -3,6 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import type {
+  Attraction,
+  AttractionCategory,
+  AttractionPriority,
   DailyPlanTag,
   DocumentCategory,
   Expense,
@@ -211,6 +214,49 @@ export async function addExpense(
     amountIls: data.amount_ils ?? 0,
     description: data.description ?? undefined,
     expenseDate: data.expense_date,
+  };
+}
+
+/** Add a new attraction manually. */
+export async function addAttraction(
+  tripId: string,
+  input: {
+    baseId?: string;
+    name: string;
+    nameLocal?: string;
+    category?: AttractionCategory;
+    priority?: AttractionPriority;
+    description?: string;
+  }
+): Promise<Attraction | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("attractions")
+    .insert({
+      trip_id: tripId,
+      base_id: input.baseId ?? null,
+      name: input.name,
+      name_local: input.nameLocal ?? null,
+      category: input.category ?? null,
+      priority: input.priority ?? null,
+      description: input.description ?? null,
+      status: "suggested",
+    })
+    .select()
+    .single();
+  if (!data) return null;
+  revalidatePath(`/trips/${tripId}/attractions`);
+  return {
+    id: data.id,
+    tripId,
+    baseId: data.base_id ?? undefined,
+    name: data.name,
+    nameLocal: data.name_local ?? undefined,
+    category: data.category ?? undefined,
+    priority: data.priority ?? undefined,
+    description: data.description ?? undefined,
+    coverImageUrl: data.cover_image_url ?? undefined,
+    status: data.status,
   };
 }
 

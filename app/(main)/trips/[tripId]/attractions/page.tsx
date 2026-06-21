@@ -23,6 +23,7 @@ export default async function TripAttractionsPage({
   return (
     <div className="page-enter">
       <AttractionsScreen
+        tripId={tripId}
         attractions={attractions}
         bases={bases}
         countryName={countryName}
