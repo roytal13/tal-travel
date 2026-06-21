@@ -182,6 +182,7 @@ export interface Attraction {
   name: string;
   nameLocal?: string;
   description?: string;
+  coverImageUrl?: string;
   category?: AttractionCategory;
   priority?: AttractionPriority;
   status: AttractionStatus;

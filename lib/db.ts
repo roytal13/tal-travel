@@ -141,6 +141,7 @@ function mapAttraction(a: any): Attraction {
     name: a.name,
     nameLocal: a.name_local ?? undefined,
     description: a.description ?? undefined,
+    coverImageUrl: a.cover_image_url ?? undefined,
     category: a.category ?? undefined,
     priority: a.priority ?? undefined,
     status: a.status,

@@ -17,6 +17,11 @@ const nextConfig: NextConfig = {
   env: {
     NEXT_PUBLIC_COMMIT: buildCommit(),
   },
+  images: {
+    remotePatterns: [
+      { protocol: "https", hostname: "images.unsplash.com" },
+    ],
+  },
 };
 
 export default nextConfig;
