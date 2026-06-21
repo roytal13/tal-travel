@@ -16,7 +16,13 @@ import type {
 export async function updateDay(
   dayId: string,
   tripId: string,
-  input: { title: string; activities: string; notes: string; tag: DailyPlanTag | "" }
+  input: {
+    title: string;
+    activities: string;
+    notes: string;
+    tag: DailyPlanTag | "";
+    timeline: import("@/lib/types").TimelineItem[];
+  }
 ) {
   const supabase = await createClient();
   await supabase
@@ -26,9 +32,11 @@ export async function updateDay(
       activities: input.activities || null,
       notes: input.notes || null,
       tag: input.tag || null,
+      timeline: input.timeline.length > 0 ? input.timeline : null,
     })
     .eq("id", dayId);
   revalidatePath(`/trips/${tripId}/plan`);
+  revalidatePath(`/trips/${tripId}/plan/${dayId}`);
 }
 
 /** Toggle a task done/open (persisted; RLS scopes to trip members). */
