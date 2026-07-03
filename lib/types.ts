@@ -25,7 +25,8 @@ export type ModuleKey =
   | "expenses"
   | "packing"
   | "journal"
-  | "photos";
+  | "photos"
+  | "driving";
 
 export interface TripMember {
   id: string;

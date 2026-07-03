@@ -12,6 +12,7 @@ import {
   Wallet,
   Luggage,
   CloudSun,
+  Car,
   type LucideIcon,
 } from "lucide-react";
 import type { ModuleKey } from "@/lib/types";
@@ -44,6 +45,7 @@ export const TRIP_MODULES: TripModuleDef[] = [
   { key: "weather", label: "מזג אוויר", segment: "weather", icon: CloudSun },
   { key: "phrasebook", label: "מילון", segment: "phrasebook", icon: Languages },
   { key: "currency", label: "ממיר מטבע", segment: "currency", icon: Coins },
+  { key: "driving", label: "נהיגה", segment: "driving", icon: Car },
 ];
 
 /** Modules enabled for a trip (overview is always included), in registry order. */
