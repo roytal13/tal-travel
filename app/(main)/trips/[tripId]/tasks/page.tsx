@@ -15,7 +15,7 @@ export default async function TripTasksPage({
 
   return (
     <div className="page-enter">
-      <TasksScreen tasks={tasks} />
+      <TasksScreen tasks={tasks} tripId={tripId} />
     </div>
   );
 }

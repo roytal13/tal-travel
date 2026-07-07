@@ -12,6 +12,8 @@ import type {
   ExpenseCategory,
   PackingCategory,
   PackingItem,
+  Task,
+  TaskCategory,
   TripDocument,
 } from "@/lib/types";
 
@@ -84,6 +86,30 @@ export async function updateTask(
 export async function deleteTask(taskId: string) {
   const supabase = await createClient();
   await supabase.from("tasks").delete().eq("id", taskId);
+}
+
+/** Create a new task. */
+export async function createTask(
+  tripId: string,
+  title: string,
+  category: TaskCategory
+): Promise<Task | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("tasks")
+    .insert({ trip_id: tripId, title, category, status: "open" })
+    .select()
+    .single();
+  if (!data) return null;
+  revalidatePath(`/trips/${tripId}/tasks`);
+  return {
+    id: data.id,
+    tripId,
+    title: data.title,
+    category: data.category ?? undefined,
+    status: data.status,
+    displayOrder: data.display_order ?? undefined,
+  };
 }
 
 /** Edit an expense. */
