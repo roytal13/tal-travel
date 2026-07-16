@@ -44,9 +44,15 @@ export function DayCard({
           </div>
 
           {day.title && <h3 className="mt-1 font-semibold">{day.title}</h3>}
-          {day.activities && (
-            <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{day.activities}</p>
-          )}
+          {(() => {
+            const summary = day.activities
+              ?? (day.timeline?.length
+                ? day.timeline.map((t) => t.title).join(" · ")
+                : null);
+            return summary ? (
+              <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{summary}</p>
+            ) : null;
+          })()}
 
           <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
             {day.weather && <WeatherInline weather={day.weather} />}
