@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { WeatherInline } from "@/components/weather/weather-inline";
-import { formatHebrewDate } from "@/lib/format";
+import { formatHebrewDate, formatShortDate } from "@/lib/format";
 import { dayTagLabel, dayTagVariant } from "@/lib/labels";
 import type { Base, DailyPlanEntry, Hotel } from "@/lib/types";
 
@@ -26,12 +26,15 @@ export function DayCard({
           <span className="font-mono text-2xl font-bold leading-none text-primary">
             {day.dayNumber}
           </span>
+          <span className="font-mono text-sm font-bold leading-none text-foreground">
+            {formatShortDate(day.date)}
+          </span>
         </div>
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-mono text-sm text-muted-foreground">
-              {formatHebrewDate(day.date)}
+            <span className="font-mono text-xs text-muted-foreground">
+              {formatHebrewDate(day.date).split(" ")[0]}
             </span>
             {day.tag && (
               <Badge variant={dayTagVariant[day.tag]}>{dayTagLabel[day.tag]}</Badge>
