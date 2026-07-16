@@ -68,6 +68,7 @@ export interface Base {
   notes?: string;
   latitude?: number;
   longitude?: number;
+  coverImageUrl?: string;
 }
 
 export type HotelStatus =

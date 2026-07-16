@@ -138,9 +138,9 @@ export function DayDetailScreen({
   return (
     <div className="page-enter">
       {/* Hero */}
-      <div className="relative h-52 w-full overflow-hidden bg-gradient-to-br from-lavender-700 via-lavender-500 to-lavender-300 md:h-64">
-        {hotel?.coverImageUrl && (
-          <Image src={hotel.coverImageUrl} alt={base?.name ?? ""} fill className="object-cover opacity-70" />
+      <div className="relative h-36 w-full overflow-hidden bg-gradient-to-br from-lavender-700 via-lavender-500 to-lavender-300 md:h-44">
+        {(base?.coverImageUrl ?? hotel?.coverImageUrl) && (
+          <Image src={base?.coverImageUrl ?? hotel!.coverImageUrl!} alt={base?.name ?? ""} fill className="object-cover" />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
 

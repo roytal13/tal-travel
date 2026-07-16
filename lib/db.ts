@@ -72,6 +72,7 @@ function mapBase(b: any): Base {
     notes: b.notes ?? undefined,
     latitude: b.latitude ?? undefined,
     longitude: b.longitude ?? undefined,
+    coverImageUrl: b.cover_image_url ?? undefined,
   };
 }
 
