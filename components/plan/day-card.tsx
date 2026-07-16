@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Hotel as HotelIcon } from "lucide-react";
+import { Hotel as HotelIcon, MapPin } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { WeatherInline } from "@/components/weather/weather-inline";
 import { formatHebrewDate, formatShortDate } from "@/lib/format";
@@ -25,7 +25,7 @@ export function DayCard({
           <span className="font-mono text-2xl font-bold leading-none text-primary">
             {day.dayNumber}
           </span>
-          <span className="font-mono text-sm font-bold leading-none text-foreground">
+          <span className="font-mono text-sm font-bold leading-none text-primary">
             {formatShortDate(day.date)}
           </span>
         </div>
@@ -35,7 +35,12 @@ export function DayCard({
             <span className="font-mono text-xs text-muted-foreground">
               {formatHebrewDate(day.date).split(" ")[0]}
             </span>
-            {base && <span className="text-sm font-medium">{base.name}</span>}
+            {base && (
+              <span className="flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                <MapPin className="size-3" />
+                {base.name}
+              </span>
+            )}
           </div>
 
           {day.title && <h3 className="mt-1 font-semibold">{day.title}</h3>}
