@@ -22,8 +22,9 @@ import type {
   TripMember,
 } from "@/lib/types";
 
-/** Reference "today" so countdowns are stable between server and client. */
-export const TODAY = "2026-06-08";
+/** Today's date in Asia/Tokyo timezone (trip timezone). */
+export const TODAY = new Date()
+  .toLocaleDateString("en-CA", { timeZone: "Asia/Tokyo" });
 /** The day the Today screen previews while the trip is still in the future. */
 export const FEATURED_TODAY = "2026-07-23";
 

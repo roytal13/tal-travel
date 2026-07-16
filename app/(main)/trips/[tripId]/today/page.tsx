@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { notFound } from "next/navigation";
 import { TodayScreen } from "@/components/today/today-screen";
 import { Card } from "@/components/ui/card";
