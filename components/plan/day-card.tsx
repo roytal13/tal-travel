@@ -45,8 +45,8 @@ export function DayCard({
 
           {day.title && <h3 className="mt-1 font-semibold">{day.title}</h3>}
           {(() => {
-            const summary = day.activities
-              ?? (day.timeline?.length
+            const summary = day.activities?.trim()
+              || (day.timeline?.length
                 ? day.timeline.map((t) => t.title).join(" · ")
                 : null);
             return summary ? (
