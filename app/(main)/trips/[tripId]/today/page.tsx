@@ -1,17 +1,8 @@
 export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
-import { TodayScreen } from "@/components/today/today-screen";
-import { Card } from "@/components/ui/card";
-import {
-  getTrip,
-  getDailyPlan,
-  getDay,
-  getBases,
-  getHotels,
-  TODAY,
-  FEATURED_TODAY,
-} from "@/lib/db";
+import { DayDetailScreen } from "@/components/plan/day-detail-screen";
+import { getTrip, getDailyPlan, getDay, getBases, getHotels, getAttractions, TODAY, FEATURED_TODAY } from "@/lib/db";
 
 export default async function TripTodayPage({
   params,
@@ -19,38 +10,39 @@ export default async function TripTodayPage({
   params: Promise<{ tripId: string }>;
 }) {
   const { tripId } = await params;
-  const trip = await getTrip(tripId);
+  const [trip, days] = await Promise.all([getTrip(tripId), getDailyPlan(tripId)]);
   if (!trip) notFound();
 
-  const days = await getDailyPlan(tripId);
-  // Use the real "today" if the trip is in progress, otherwise a preview day.
   const inProgress = TODAY >= trip.startDate && TODAY <= trip.endDate;
   const targetDate = inProgress ? TODAY : FEATURED_TODAY;
-  const [day, bases, hotels] = await Promise.all([
+
+  const [day, bases, hotels, attractions] = await Promise.all([
     getDay(tripId, targetDate),
     getBases(tripId),
     getHotels(tripId),
+    getAttractions(tripId),
   ]);
+
   const today = day ?? days[0];
+  if (!today) notFound();
+
+  const idx = days.findIndex((d) => d.date === today.date);
+  const prevDate = idx > 0 ? days[idx - 1].date : undefined;
+  const nextDate = idx < days.length - 1 ? days[idx + 1].date : undefined;
+  const base = bases.find((b) => b.id === today.baseId);
 
   return (
     <div className="page-enter">
-      {today ? (
-        <TodayScreen
-          trip={trip}
-          day={today}
-          base={bases.find((b) => b.id === today.baseId)}
-          hotel={hotels.find((h) => h.id === today.hotelId)}
-          totalDays={days.length}
-          isPreview={!inProgress}
-        />
-      ) : (
-        <div className="mx-auto max-w-2xl px-4 py-8 md:px-8">
-          <Card className="p-6 text-center text-muted-foreground">
-            אין עדיין לוח זמנים יומי לטיול הזה
-          </Card>
-        </div>
-      )}
+      <DayDetailScreen
+        tripId={tripId}
+        day={today}
+        base={base}
+        hotel={hotels.find((h) => h.id === today.hotelId)}
+        attractions={attractions.filter((a) => a.baseId === today.baseId)}
+        totalDays={days.length}
+        prevDate={prevDate}
+        nextDate={nextDate}
+      />
     </div>
   );
 }

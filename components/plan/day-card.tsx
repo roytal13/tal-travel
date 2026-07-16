@@ -1,9 +1,8 @@
 import Link from "next/link";
+import { Hotel as HotelIcon } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { WeatherInline } from "@/components/weather/weather-inline";
 import { formatHebrewDate, formatShortDate } from "@/lib/format";
-import { dayTagLabel, dayTagVariant } from "@/lib/labels";
 import type { Base, DailyPlanEntry, Hotel } from "@/lib/types";
 
 export function DayCard({
@@ -36,21 +35,21 @@ export function DayCard({
             <span className="font-mono text-xs text-muted-foreground">
               {formatHebrewDate(day.date).split(" ")[0]}
             </span>
-            {day.tag && (
-              <Badge variant={dayTagVariant[day.tag]}>{dayTagLabel[day.tag]}</Badge>
-            )}
             {base && <span className="text-sm font-medium">{base.name}</span>}
           </div>
 
           {day.title && <h3 className="mt-1 font-semibold">{day.title}</h3>}
           {day.activities && (
-            <p className="mt-1 text-sm text-muted-foreground">{day.activities}</p>
+            <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{day.activities}</p>
           )}
 
           <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
             {day.weather && <WeatherInline weather={day.weather} />}
             {hotel && (
-              <span className="text-sm text-muted-foreground">לינה: {hotel.name}</span>
+              <span className="flex items-center gap-1 text-sm font-medium text-foreground">
+                <HotelIcon className="size-3.5 text-primary" />
+                {hotel.name}
+              </span>
             )}
           </div>
         </div>
