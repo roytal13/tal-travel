@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Heebo, Inter, Manrope, JetBrains_Mono } from "next/font/google";
 import { PWARegister } from "@/components/app/pwa-register";
+import { ThemeProvider } from "@/components/app/theme-provider";
 import "./globals.css";
 
 // Hebrew is the primary UI language, Inter backs it for Latin text.
@@ -63,7 +64,7 @@ export default function RootLayout({
       className={`${heebo.variable} ${inter.variable} ${manrope.variable} ${jetbrainsMono.variable} h-full`}
     >
       <body className="min-h-full antialiased">
-        {children}
+        <ThemeProvider>{children}</ThemeProvider>
         <PWARegister />
       </body>
     </html>
