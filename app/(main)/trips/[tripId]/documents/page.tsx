@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { notFound } from "next/navigation";
 import { DocumentsScreen } from "@/components/documents/documents-screen";
 import { getTrip, getDocuments } from "@/lib/db";

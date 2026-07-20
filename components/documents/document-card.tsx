@@ -36,11 +36,20 @@ export function DocumentCard({
           <img
             src={doc.fileUrl}
             alt={doc.title}
-            className="size-10 shrink-0 rounded-lg object-cover"
+            className="size-14 shrink-0 rounded-lg object-cover"
           />
+        ) : doc.mimeType === "application/pdf" && doc.fileUrl ? (
+          <div className="relative size-14 shrink-0 overflow-hidden rounded-lg border border-border bg-secondary">
+            <iframe
+              src={`${doc.fileUrl}#toolbar=0&navpanes=0&scrollbar=0&view=fitH`}
+              title={doc.title}
+              className="pointer-events-none h-[200%] w-[200%] origin-top-left scale-50 border-0"
+              tabIndex={-1}
+            />
+          </div>
         ) : (
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[#e0e7ff] text-[#6366f1]">
-            <Icon className="size-5" />
+          <span className="flex size-14 shrink-0 items-center justify-center rounded-lg bg-[#e0e7ff] text-[#6366f1]">
+            <Icon className="size-6" />
           </span>
         )}
         <div className="min-w-0 flex-1">

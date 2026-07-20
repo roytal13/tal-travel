@@ -42,17 +42,7 @@ export function DocumentsScreen({
 
   const openDoc = (doc: TripDocument) => {
     if (!doc.fileUrl) return;
-    if (doc.mimeType?.startsWith("image/")) {
-      setLightbox(doc);
-    } else {
-      const a = document.createElement("a");
-      a.href = doc.fileUrl;
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    }
+    setLightbox(doc);
   };
 
   const removeDoc = (id: string) => {
@@ -228,22 +218,11 @@ export function DocumentsScreen({
         })}
       </div>
 
-      {/* Image lightbox */}
+      {/* Document lightbox — supports images and PDFs */}
       {lightbox?.fileUrl && (
-        <div
-          className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/85 p-4"
-          onClick={() => setLightbox(null)}
-        >
-          <div className="absolute inset-x-0 top-0 flex items-center justify-between p-4">
-            <a
-              href={lightbox.fileUrl}
-              download={lightbox.title}
-              onClick={(e) => e.stopPropagation()}
-              className="flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-sm text-white backdrop-blur transition-colors hover:bg-white/25"
-            >
-              <Download className="size-4" />
-              הורדה
-            </a>
+        <div className="fixed inset-0 z-50 flex flex-col bg-black/90">
+          {/* Top bar */}
+          <div className="flex shrink-0 items-center justify-between p-4">
             <button
               onClick={() => setLightbox(null)}
               aria-label="סגור"
@@ -251,14 +230,38 @@ export function DocumentsScreen({
             >
               <X className="size-5" />
             </button>
+            <span className="truncate px-3 text-sm font-medium text-white">{lightbox.title}</span>
+            <a
+              href={lightbox.fileUrl}
+              download={lightbox.title}
+              className="flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-sm text-white backdrop-blur transition-colors hover:bg-white/25"
+            >
+              <Download className="size-4" />
+              הורדה
+            </a>
           </div>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={lightbox.fileUrl}
-            alt={lightbox.title}
-            onClick={(e) => e.stopPropagation()}
-            className="max-h-[85vh] max-w-full rounded-lg object-contain"
-          />
+
+          {/* Content */}
+          <div className="min-h-0 flex-1" onClick={() => setLightbox(null)}>
+            {lightbox.mimeType?.startsWith("image/") ? (
+              <div className="flex h-full items-center justify-center p-4">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={lightbox.fileUrl}
+                  alt={lightbox.title}
+                  onClick={(e) => e.stopPropagation()}
+                  className="max-h-full max-w-full rounded-lg object-contain"
+                />
+              </div>
+            ) : (
+              <iframe
+                src={lightbox.fileUrl}
+                title={lightbox.title}
+                onClick={(e) => e.stopPropagation()}
+                className="h-full w-full border-0"
+              />
+            )}
+          </div>
         </div>
       )}
     </div>
