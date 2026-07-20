@@ -45,7 +45,13 @@ export function DocumentsScreen({
     if (doc.mimeType?.startsWith("image/")) {
       setLightbox(doc);
     } else {
-      window.open(doc.fileUrl, "_blank", "noopener,noreferrer");
+      const a = document.createElement("a");
+      a.href = doc.fileUrl;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     }
   };
 
